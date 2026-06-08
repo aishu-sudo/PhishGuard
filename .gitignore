@@ -1,0 +1,15 @@
+venv311/
+__pycache__/
+
+datasets/
+data/
+models/
+
+*.csv
+*.xlsx
+*.safetensors
+*.bin
+*.pth
+
+.ipynb_checkpoints/
+.env
