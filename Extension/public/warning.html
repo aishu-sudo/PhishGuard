@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PhishGuard Warning</title>
+    <link rel="stylesheet" href="warning.css">
+</head>
+
+<body>
+
+    <div class="container" id="mainContainer">
+
+        <div class="icon" id="levelIcon">⚠️</div>
+
+        <h1 id="levelTitle">Potential Phishing Website Detected</h1>
+
+        <p id="levelDescription">
+            PhishGuard believes this website may be attempting to steal passwords, OTPs, banking information, or personal data.
+        </p>
+
+        <div id="riskBox">
+            Risk Score: Loading...
+        </div>
+
+        <div class="buttons">
+            <button id="backBtn">Go Back</button>
+            <button id="continueBtn">Proceed Anyway</button>
+            <button id="detailsBtn">View Investigation Details</button>
+        </div>
+
+        <div id="detailsPanel" class="details-panel hidden">
+            <div id="detailsContent">Loading investigation data...</div>
+        </div>
+
+    </div>
+
+    <script src="warning.js"></script>
+
+</body>
+
+</html>

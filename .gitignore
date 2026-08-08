@@ -1,0 +1,26 @@
+# Python / Virtual Environments
+.venv/
+venv/
+Backend/.venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Node.js / Build Artifacts
+node_modules/
+web/node_modules/
+Extension/node_modules/
+dist/
+web/dist/
+Extension/dist/
+.oxlintrc.json
+
+# Environment / Logs
+.env
+*.log
+.DS_Store
+
+# Temporary checkpoints
+.ipynb_checkpoints/
+scratch/
+*.zip

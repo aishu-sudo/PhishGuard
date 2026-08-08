@@ -1,0 +1,35 @@
+#phishguard-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2147483647;
+  background: #dc2626;
+  color: #ffffff;
+  font-family: 'Segoe UI', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  animation: phishguard-slide-in 0.3s ease;
+}
+
+#phishguard-banner span { display: flex; align-items: center; gap: 8px; }
+
+#phishguard-dismiss {
+  background: rgba(255,255,255,0.25);
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-size: 12px;
+}
+
+@keyframes phishguard-slide-in {
+  from { transform: translateY(-100%); }
+  to   { transform: translateY(0); }
+}

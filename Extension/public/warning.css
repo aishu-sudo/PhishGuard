@@ -1,0 +1,171 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Segoe UI, sans-serif;
+    background: #111827;
+    color: white;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px 20px;
+}
+
+.container {
+    max-width: 700px;
+    width: 100%;
+    text-align: center;
+}
+
+.icon {
+    font-size: 80px;
+    margin-bottom: 20px;
+}
+
+h1 {
+    margin-bottom: 20px;
+}
+
+.container.level-red h1 {
+    color: #ef4444;
+}
+
+.container.level-yellow h1 {
+    color: #f59e0b;
+}
+
+p {
+    color: #d1d5db;
+    line-height: 1.8;
+    margin-bottom: 25px;
+}
+
+#riskBox {
+    background: #1f2937;
+    border: 1px solid #374151;
+    padding: 15px;
+    border-radius: 10px;
+    font-size: 18px;
+    margin-bottom: 30px;
+}
+
+.container.level-red #riskBox {
+    border-color: #ef4444;
+}
+
+.container.level-yellow #riskBox {
+    border-color: #f59e0b;
+}
+
+.buttons {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+button {
+    border: none;
+    cursor: pointer;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+#backBtn {
+    background: #dc2626;
+    color: white;
+}
+
+#backBtn:hover {
+    background: #b91c1c;
+}
+
+#continueBtn {
+    background: #374151;
+    color: white;
+}
+
+#continueBtn:hover {
+    background: #4b5563;
+}
+
+#detailsBtn {
+    background: #1e40af;
+    color: white;
+}
+
+#detailsBtn:hover {
+    background: #1e3a8a;
+}
+
+.details-panel {
+    margin-top: 25px;
+    text-align: left;
+    background: #1f2937;
+    border: 1px solid #374151;
+    border-radius: 10px;
+    padding: 20px;
+    font-size: 13px;
+    line-height: 1.7;
+    max-height: 420px;
+    overflow-y: auto;
+}
+
+.details-panel.hidden {
+    display: none;
+}
+
+.detail-section {
+    margin-bottom: 16px;
+    border-bottom: 1px solid #374151;
+    padding-bottom: 12px;
+}
+
+.detail-section:last-child {
+    border-bottom: none;
+}
+
+.detail-section h3 {
+    color: #93c5fd;
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    color: #d1d5db;
+    padding: 2px 0;
+}
+
+.detail-row .label {
+    color: #9ca3af;
+}
+
+.detail-row .value {
+    text-align: right;
+    word-break: break-word;
+}
+
+.badge-flag {
+    color: #ef4444;
+    font-weight: 700;
+}
+
+.badge-ok {
+    color: #4ade80;
+    font-weight: 700;
+}
+
+.disclaimer-note {
+    margin-top: 12px;
+    color: #6b7280;
+    font-size: 11px;
+    font-style: italic;
+}
