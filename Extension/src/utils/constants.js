@@ -1,4 +1,4 @@
-export const API_BASE = "https://silence-membership-clause-handed.trycloudflare.com";
+export const API_BASE = "https://cinema-sacred-resorts-continuously.trycloudflare.com";
 export const RED_THRESHOLD = 0.65;
 export const YELLOW_THRESHOLD = 0.40;
 
