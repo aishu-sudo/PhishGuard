@@ -19,7 +19,10 @@ export default function TextAnalyzer({ onScanComplete }) {
     try {
       const res = await fetch(`${API_BASE_URL}/predict/text`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'bypass-tunnel-reminder': 'true'
+        },
         body: JSON.stringify({ text: finalStr }),
       });
 

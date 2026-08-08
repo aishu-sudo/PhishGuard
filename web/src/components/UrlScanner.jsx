@@ -23,7 +23,10 @@ export default function UrlScanner({ onScanComplete }) {
       if (mode === 'investigate') {
         const res = await fetch(`${API_BASE_URL}/investigate`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'bypass-tunnel-reminder': 'true'
+          },
           body: JSON.stringify({ url: finalUrl }),
         });
         if (!res.ok) throw new Error(`HTTP error ${res.status}`);
@@ -41,7 +44,10 @@ export default function UrlScanner({ onScanComplete }) {
         const endpoint = mode === 'fast' ? '/predict/fast' : '/predict/url';
         const res = await fetch(`${API_BASE_URL}${endpoint}`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'bypass-tunnel-reminder': 'true'
+          },
           body: JSON.stringify({ url: finalUrl }),
         });
         if (!res.ok) throw new Error(`HTTP error ${res.status}`);

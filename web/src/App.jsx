@@ -14,7 +14,9 @@ export default function App() {
   useEffect(() => {
     const checkHealth = async () => {
       try {
-        const res = await fetch(`${API_BASE_URL}/health`);
+        const res = await fetch(`${API_BASE_URL}/health`, {
+          headers: { 'bypass-tunnel-reminder': 'true' }
+        });
         if (res.ok) {
           setApiStatus('connected');
         } else {
