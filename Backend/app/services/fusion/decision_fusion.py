@@ -517,15 +517,23 @@ _feature_names = None
 def _get_url_models():
     global _xgb, _iso, _tfidf, _feature_names
     if _xgb is None:
+        import gc
+        gc.collect()
         _xgb = joblib.load(XGB_MODEL_PATH)
         _iso = joblib.load(ISO_MODEL_PATH)
-        _tfidf = joblib.load(TFIDF_PATH)
+        try:
+            _tfidf = joblib.load(TFIDF_PATH)
+        except Exception as err:
+            print(f"[URL] Warning: Could not load TFIDF vectorizer ({err}); using fallback.")
+            _tfidf = None
         try:
             _meta = joblib.load(URL_META_PATH)
             _feature_names = _meta.get("feature_names") or joblib.load(FEATURE_NAMES_PATH)
         except Exception:
             _feature_names = joblib.load(FEATURE_NAMES_PATH)
-        print(f"[URL] Models Loaded | Features: {len(_feature_names)} | TF-IDF: {len(_tfidf.vocabulary_)}")
+        gc.collect()
+        tfidf_vocab = len(_tfidf.vocabulary_) if (_tfidf and hasattr(_tfidf, "vocabulary_")) else 0
+        print(f"[URL] Models Loaded | Features: {len(_feature_names)} | TF-IDF: {tfidf_vocab}")
     return _xgb, _iso, _tfidf, _feature_names
 
 # ==========================================================
@@ -660,7 +668,15 @@ def score_url(url: str, fast: bool = False):
 
     t = time.time()
 
-    t_arr = _tfidf.transform([norm])
+    if _tfidf is not None:
+        try:
+            t_arr = _tfidf.transform([norm])
+        except Exception:
+            num_tfidf = max(0, getattr(_xgb, "n_features_in_", 0) - h_arr.shape[1])
+            t_arr = csr_matrix((1, num_tfidf))
+    else:
+        num_tfidf = max(0, getattr(_xgb, "n_features_in_", 0) - h_arr.shape[1])
+        t_arr = csr_matrix((1, num_tfidf))
 
     print(
         f"TF-IDF             : {time.time()-t:.3f} sec"
