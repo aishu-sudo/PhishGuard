@@ -1,6 +1,4 @@
 from pathlib import Path
-import torch
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from app.config import NLP_MODEL_DIR
 
 _tokenizer = None
@@ -9,6 +7,9 @@ _model = None
 def _get_nlp_model():
     global _tokenizer, _model
     if _tokenizer is None or _model is None:
+        import torch
+        from transformers import AutoTokenizer, AutoModelForSequenceClassification
+
         model_path = str(NLP_MODEL_DIR) if Path(NLP_MODEL_DIR).exists() else "aishuzaman/phishguard-nlp-v2"
         print(f"[nlp] Loading model from {model_path}...")
         _tokenizer = AutoTokenizer.from_pretrained(model_path)
@@ -18,6 +19,7 @@ def _get_nlp_model():
     return _tokenizer, _model
 
 def classify_text(text: str, threshold: float = 0.5) -> dict:
+    import torch
     tokenizer, model = _get_nlp_model()
     inputs = tokenizer(
         text,
@@ -39,4 +41,3 @@ def classify_text(text: str, threshold: float = 0.5) -> dict:
         "phishing_probability":   round(phish_prob, 4),
         "legitimate_probability": round(probs[0],   4),
     }
-
