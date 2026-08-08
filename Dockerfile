@@ -18,7 +18,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Copy backend requirements
 COPY Backend/requirements.txt /app/requirements.txt
 
-# Install Python dependencies
+# Install PyTorch CPU-only wheel first (saves >1 GB disk & memory overhead)
+RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu
+
+# Install remaining Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt rapidfuzz pandas python-whois ipwhois mmh3
 
 # Copy Backend codebase
