@@ -1,5 +1,5 @@
 // PhishGuard Robust API Configuration & Dynamic Failover
-const TUNNEL_URL = 'https://love-steering-phi-compaq.trycloudflare.com';
+const TUNNEL_URL = 'https://tricks-permits-thermal-tile.trycloudflare.com';
 const CLOUD_URL = 'https://phishguard-rl19.onrender.com';
 const LOCAL_URL = 'http://127.0.0.1:8000';
 
@@ -7,11 +7,11 @@ export const API_BASE_URL = TUNNEL_URL;
 
 export async function safeFetch(path, options = {}) {
   let lastError = null;
-  // Try endpoints in priority order: Active Tunnel -> Local PC -> Cloud Server
+  // Priority Order: Active Tunnel -> Local PC -> Render Cloud
   const targets = Array.from(new Set([
     TUNNEL_URL,
-    CLOUD_URL,
-    LOCAL_URL
+    LOCAL_URL,
+    CLOUD_URL
   ]));
 
   for (const base of targets) {
