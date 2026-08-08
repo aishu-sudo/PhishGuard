@@ -1,4 +1,4 @@
-export const API_BASE = "https://provided-value-immune-gmbh.trycloudflare.com";
+export const API_BASE = "https://wisdom-black-conferencing-past.trycloudflare.com";
 export const RED_THRESHOLD = 0.65;
 export const YELLOW_THRESHOLD = 0.40;
 
