@@ -1,5 +1,5 @@
 // PhishGuard Robust API Configuration & Dynamic Failover
-const TUNNEL_URL = 'https://tricks-permits-thermal-tile.trycloudflare.com';
+const TUNNEL_URL = 'https://dawn-nightlife-foster-workout.trycloudflare.com';
 const CLOUD_URL = 'https://phishguard-rl19.onrender.com';
 const LOCAL_URL = 'http://127.0.0.1:8000';
 

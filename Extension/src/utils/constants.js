@@ -1,4 +1,4 @@
-export const API_BASE = "https://tricks-permits-thermal-tile.trycloudflare.com";
+export const API_BASE = "https://dawn-nightlife-foster-workout.trycloudflare.com";
 export const RED_THRESHOLD = 0.65;
 export const YELLOW_THRESHOLD = 0.40;
 
