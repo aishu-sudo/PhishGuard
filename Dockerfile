@@ -7,7 +7,6 @@ WORKDIR /app
 # Prevent Python from writing pyc files to disk and buffer stdout/stderr
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
-ENV PORT=8000
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -34,5 +33,5 @@ ENV PYTHONPATH=/app/Backend:/app
 # Expose port
 EXPOSE 8000
 
-# Run uvicorn server binding to 0.0.0.0:$PORT
+# Run uvicorn server binding to 0.0.0.0:${PORT:-8000}
 CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
