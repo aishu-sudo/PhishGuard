@@ -18,7 +18,8 @@ export async function safeFetch(path, options = {}) {
     try {
       const url = `${base.replace(/\/$/, '')}${path}`;
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 4000);
+      // 30 second timeout to allow complete WHOIS & OSINT socket lookups
+      const timeoutId = setTimeout(() => controller.abort(), 30000);
 
       const res = await fetch(url, {
         ...options,
