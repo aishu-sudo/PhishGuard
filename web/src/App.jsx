@@ -3,7 +3,7 @@ import Navbar from './components/Navbar';
 import UrlScanner from './components/UrlScanner';
 import TextAnalyzer from './components/TextAnalyzer';
 import ScanHistory from './components/ScanHistory';
-import { API_BASE_URL } from './config';
+import { safeFetch } from './config';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('url'); // 'url', 'text', 'history'
@@ -14,9 +14,7 @@ export default function App() {
   useEffect(() => {
     const checkHealth = async () => {
       try {
-        const res = await fetch(`${API_BASE_URL}/health`, {
-          headers: { 'bypass-tunnel-reminder': 'true' }
-        });
+        const res = await safeFetch('/health');
         if (res.ok) {
           setApiStatus('connected');
         } else {
@@ -28,7 +26,7 @@ export default function App() {
     };
 
     checkHealth();
-    const interval = setInterval(checkHealth, 10000);
+    const interval = setInterval(checkHealth, 12000);
     return () => clearInterval(interval);
   }, []);
 

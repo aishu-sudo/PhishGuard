@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { MessageSquare, AlertTriangle, ShieldCheck, ShieldAlert, Sparkles, Send } from 'lucide-react';
-import { API_BASE_URL } from '../config';
+import { safeFetch } from '../config';
 
 export default function TextAnalyzer({ onScanComplete }) {
   const [textInput, setTextInput] = useState('');
@@ -17,16 +17,11 @@ export default function TextAnalyzer({ onScanComplete }) {
     setResult(null);
 
     try {
-      const res = await fetch(`${API_BASE_URL}/predict/text`, {
+      const res = await safeFetch('/predict/text', {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'bypass-tunnel-reminder': 'true'
-        },
         body: JSON.stringify({ text: finalStr }),
       });
 
-      if (!res.ok) throw new Error(`HTTP error ${res.status}`);
       const data = await res.json();
       setResult(data);
 

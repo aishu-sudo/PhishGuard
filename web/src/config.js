@@ -1,3 +1,45 @@
-// PhishGuard API Configuration
-// Connected to Local PC Backend via Cloudflare Tunnel
-export const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://love-steering-phi-compaq.trycloudflare.com';
+// PhishGuard Robust API Configuration & Dynamic Failover
+const TUNNEL_URL = 'https://love-steering-phi-compaq.trycloudflare.com';
+const CLOUD_URL = 'https://phishguard-rl19.onrender.com';
+const LOCAL_URL = 'http://127.0.0.1:8000';
+
+export const API_BASE_URL = TUNNEL_URL;
+
+export async function safeFetch(path, options = {}) {
+  let lastError = null;
+  // Try endpoints in priority order: Active Tunnel -> Local PC -> Cloud Server
+  const targets = Array.from(new Set([
+    TUNNEL_URL,
+    CLOUD_URL,
+    LOCAL_URL
+  ]));
+
+  for (const base of targets) {
+    try {
+      const url = `${base.replace(/\/$/, '')}${path}`;
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 4000);
+
+      const res = await fetch(url, {
+        ...options,
+        signal: controller.signal,
+        headers: {
+          'Content-Type': 'application/json',
+          'bypass-tunnel-reminder': 'true',
+          'ngrok-skip-browser-warning': 'true',
+          ...(options.headers || {})
+        }
+      });
+
+      clearTimeout(timeoutId);
+
+      if (res.ok) {
+        return res;
+      }
+      lastError = new Error(`HTTP error ${res.status}`);
+    } catch (err) {
+      lastError = err;
+    }
+  }
+  throw lastError || new Error('Failed to fetch from backend server');
+}

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Search, ShieldAlert, ShieldCheck, AlertTriangle, Zap, Server, Lock, Globe, Cpu, ChevronRight, FileText, Activity } from 'lucide-react';
-import { API_BASE_URL } from '../config';
+import { safeFetch } from '../config';
 
 export default function UrlScanner({ onScanComplete }) {
   const [urlInput, setUrlInput] = useState('');
@@ -21,15 +21,10 @@ export default function UrlScanner({ onScanComplete }) {
 
     try {
       if (mode === 'investigate') {
-        const res = await fetch(`${API_BASE_URL}/investigate`, {
+        const res = await safeFetch('/investigate', {
           method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            'bypass-tunnel-reminder': 'true'
-          },
           body: JSON.stringify({ url: finalUrl }),
         });
-        if (!res.ok) throw new Error(`HTTP error ${res.status}`);
         const data = await res.json();
         setInvestigationData(data);
         setResult({
@@ -42,15 +37,10 @@ export default function UrlScanner({ onScanComplete }) {
         });
       } else {
         const endpoint = mode === 'fast' ? '/predict/fast' : '/predict/url';
-        const res = await fetch(`${API_BASE_URL}${endpoint}`, {
+        const res = await safeFetch(endpoint, {
           method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            'bypass-tunnel-reminder': 'true'
-          },
           body: JSON.stringify({ url: finalUrl }),
         });
-        if (!res.ok) throw new Error(`HTTP error ${res.status}`);
         const data = await res.json();
         setResult(data);
 
