@@ -1,4 +1,4 @@
-export const API_BASE = "https://charges-bumper-oecd-during.trycloudflare.com";
+export const API_BASE = "https://sleeps-construct-gif-held.trycloudflare.com";
 export const RED_THRESHOLD = 0.65;
 export const YELLOW_THRESHOLD = 0.40;
 
