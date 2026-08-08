@@ -1,4 +1,4 @@
-export const API_BASE = "https://wax-supporters-request-sponsored.trycloudflare.com";
+export const API_BASE = "https://bumpy-bikes-kneel.loca.lt";
 export const RED_THRESHOLD = 0.65;
 export const YELLOW_THRESHOLD = 0.40;
 
