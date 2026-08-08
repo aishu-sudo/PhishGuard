@@ -1,17 +1,15 @@
-// PhishGuard Robust API Configuration & Dynamic Failover
+// PhishGuard API Configuration (Local PC Host via Cloudflare Tunnel)
 const TUNNEL_URL = 'https://dawn-nightlife-foster-workout.trycloudflare.com';
-const CLOUD_URL = 'https://phishguard-rl19.onrender.com';
 const LOCAL_URL = 'http://127.0.0.1:8000';
 
 export const API_BASE_URL = TUNNEL_URL;
 
 export async function safeFetch(path, options = {}) {
   let lastError = null;
-  // Priority Order: Active Tunnel -> Local PC -> Render Cloud
+  // Strictly Local PC Host: Cloudflare Tunnel -> Local PC Host
   const targets = Array.from(new Set([
     TUNNEL_URL,
-    LOCAL_URL,
-    CLOUD_URL
+    LOCAL_URL
   ]));
 
   for (const base of targets) {
@@ -42,5 +40,5 @@ export async function safeFetch(path, options = {}) {
       lastError = err;
     }
   }
-  throw lastError || new Error('Failed to fetch from backend server');
+  throw lastError || new Error('Failed to fetch from local PC backend');
 }
