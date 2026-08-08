@@ -1,10 +1,7 @@
 import React from 'react';
 import { Shield, Activity, Globe, MessageSquare, History } from 'lucide-react';
-import { API_BASE_URL } from '../config';
 
 export default function Navbar({ activeTab, setActiveTab, apiStatus }) {
-  const displayHost = API_BASE_URL.replace(/^https?:\/\//, '');
-
   return (
     <header className="header-container">
       <a href="#" className="brand-logo">
@@ -40,7 +37,7 @@ export default function Navbar({ activeTab, setActiveTab, apiStatus }) {
 
       <div className="badge-status">
         <div className={`pulse-dot ${apiStatus === 'connected' ? '' : 'error'}`}></div>
-        <span>{apiStatus === 'connected' ? `API Live (${displayHost})` : 'API Offline'}</span>
+        <span>{apiStatus === 'connected' ? 'API Online' : 'API Offline'}</span>
       </div>
     </header>
   );
