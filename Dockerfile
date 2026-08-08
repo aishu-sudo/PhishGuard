@@ -23,15 +23,13 @@ COPY Backend/requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt rapidfuzz pandas python-whois ipwhois mmh3
 
 # Copy Backend codebase
-COPY Backend/app /app/Backend/app
-COPY Backend/init_db.py /app/Backend/init_db.py
+COPY Backend /app/Backend
 
-# Copy Research models and dataset needed for prediction
-COPY Research/models /app/Research/models
-COPY Research/data /app/Research/data
+# Copy Research models and datasets
+COPY Research /app/Research
 
-# Set PYTHONPATH so python can locate app modules
-ENV PYTHONPATH=/app/Backend
+# Set PYTHONPATH so python can locate app and Backend modules
+ENV PYTHONPATH=/app/Backend:/app
 
 # Expose port
 EXPOSE 8000

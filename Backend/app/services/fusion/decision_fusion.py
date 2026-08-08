@@ -103,31 +103,48 @@ def _extract_apex(host_no_www):
 # ==========================================================
 # LOAD TOP BRANDS
 # ==========================================================
+# LOAD TOP BRANDS
+# ==========================================================
 
-_default_tranco = Path(__file__).parent.parent.parent.parent / "Research/data/Top Sites.csv"
-if _default_tranco.exists():
-    TRANCO_FILE = str(_default_tranco)
-elif Path(r"E:\CAPSTONE\PhishGuard_Friend\Research\data\Top Sites.csv").exists():
-    TRANCO_FILE = r"E:\CAPSTONE\PhishGuard_Friend\Research\data\Top Sites.csv"
+from app.config import BASE_DIR
+
+tranco_candidates = [
+    BASE_DIR / "Research/data/Top Sites.csv",
+    Path(__file__).resolve().parents[4] / "Research/data/Top Sites.csv",
+    Path(r"E:\CAPSTONE\PhishGuard_Friend\Research\data\Top Sites.csv"),
+    Path(r"E:\Project Demo\Research\data\Top Sites.csv")
+]
+
+TRANCO_FILE = None
+for candidate in tranco_candidates:
+    if candidate.exists():
+        TRANCO_FILE = str(candidate)
+        break
+
+if TRANCO_FILE:
+    print(f"[fusion] Loading top domains from {TRANCO_FILE}")
+    df = pd.read_csv(
+        TRANCO_FILE,
+        header=None,
+        names=["rank", "domain"],
+        nrows=100000,
+    )
+    _raw_domains = (
+        df["domain"]
+          .dropna()
+          .astype(str)
+          .str.lower()
+          .str.split(".")
+          .str[0]
+          .tolist()
+    )
+    FULL_TOP_DOMAINS = set(
+        df["domain"].dropna().astype(str).str.lower().tolist()
+    )
 else:
-    TRANCO_FILE = r"E:\Project Demo\Research\data\Top Sites.csv"
-
-df = pd.read_csv(
-    TRANCO_FILE,
-    header=None,
-    names=["rank", "domain"],
-    nrows=100000,
-)
-
-_raw_domains = (
-    df["domain"]
-      .dropna()
-      .astype(str)
-      .str.lower()
-      .str.split(".")
-      .str[0]
-      .tolist()
-)
+    print("[fusion] Warning: Top Sites.csv not found; initializing empty brand lists.")
+    _raw_domains = []
+    FULL_TOP_DOMAINS = set()
 
 # NOTE: must match notebook training logic exactly (length filter + dedupe),
 # otherwise TOP_BRANDS/ALL_BRANDS differ from what the model was trained on.
@@ -146,11 +163,6 @@ ALL_BRANDS = domains[:20000]
 # TOP_BRANDS/ALL_BRANDS (first-label tokens like "bkash"), because matching
 # on the first label alone would allowlist any TLD swap of a known brand
 # (e.g. "bkash.xyz", "paypal.tk") — precisely the typosquat pattern this
-# tool exists to catch.
-FULL_TOP_DOMAINS = set(
-    df["domain"].dropna().astype(str).str.lower().tolist()
-)
-
 print(f"TOP_BRANDS: {len(TOP_BRANDS)}")
 print(f"ALL_BRANDS: {len(ALL_BRANDS)}")
 print(f"FULL_TOP_DOMAINS: {len(FULL_TOP_DOMAINS)}")
