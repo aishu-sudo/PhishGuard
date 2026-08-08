@@ -1,12 +1,12 @@
-// PhishGuard API Configuration (Local PC Host via Localtunnel)
-const TUNNEL_URL = 'https://bumpy-bikes-kneel.loca.lt';
+// PhishGuard API Configuration (Local PC Host via Cloudflare Tunnel)
+const TUNNEL_URL = 'https://silence-membership-clause-handed.trycloudflare.com';
 const LOCAL_URL = 'http://127.0.0.1:8000';
 
 export const API_BASE_URL = TUNNEL_URL;
 
 export async function safeFetch(path, options = {}) {
   let lastError = null;
-  // Priority Order: Localtunnel -> Local PC Host
+  // Strictly Local PC Host: Cloudflare Tunnel -> Local PC Host
   const targets = Array.from(new Set([
     TUNNEL_URL,
     LOCAL_URL
@@ -24,7 +24,6 @@ export async function safeFetch(path, options = {}) {
         signal: controller.signal,
         headers: {
           'Content-Type': 'application/json',
-          'Bypass-Tunnel-Reminder': 'true',
           'bypass-tunnel-reminder': 'true',
           'ngrok-skip-browser-warning': 'true',
           ...(options.headers || {})
