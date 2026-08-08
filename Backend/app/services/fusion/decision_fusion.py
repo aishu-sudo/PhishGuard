@@ -494,35 +494,27 @@ def _normalize_url(url):
     return url
 
 # ==========================================================
-# LOAD MODELS
+# LOAD MODELS (LAZY)
 # ==========================================================
 
-_xgb = joblib.load(XGB_MODEL_PATH)
-_iso = joblib.load(ISO_MODEL_PATH)
-_tfidf = joblib.load(TFIDF_PATH)
+_xgb = None
+_iso = None
+_tfidf = None
+_feature_names = None
 
-try:
-
-    _meta = joblib.load(URL_META_PATH)
-
-    _feature_names = (
-        _meta.get("feature_names")
-        or joblib.load(FEATURE_NAMES_PATH)
-    )
-
-except Exception:
-
-    _feature_names = joblib.load(
-        FEATURE_NAMES_PATH
-    )
-
-_n_features = len(_feature_names)
-
-print(
-    f"[URL] Models Loaded | "
-    f"Features: {_n_features} | "
-    f"TF-IDF: {len(_tfidf.vocabulary_)}"
-)
+def _get_url_models():
+    global _xgb, _iso, _tfidf, _feature_names
+    if _xgb is None:
+        _xgb = joblib.load(XGB_MODEL_PATH)
+        _iso = joblib.load(ISO_MODEL_PATH)
+        _tfidf = joblib.load(TFIDF_PATH)
+        try:
+            _meta = joblib.load(URL_META_PATH)
+            _feature_names = _meta.get("feature_names") or joblib.load(FEATURE_NAMES_PATH)
+        except Exception:
+            _feature_names = joblib.load(FEATURE_NAMES_PATH)
+        print(f"[URL] Models Loaded | Features: {len(_feature_names)} | TF-IDF: {len(_tfidf.vocabulary_)}")
+    return _xgb, _iso, _tfidf, _feature_names
 
 # ==========================================================
 # HELPERS
@@ -558,6 +550,9 @@ def _alert(score):
     # ------------------------------------------------------
 
 def score_url(url: str, fast: bool = False):
+
+    _xgb, _iso, _tfidf, _feature_names = _get_url_models()
+    _n_features = len(_feature_names)
 
     total_start = time.time()
 
