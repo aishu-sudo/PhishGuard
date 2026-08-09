@@ -83,35 +83,6 @@ export default function TextAnalyzer({ onScanComplete }) {
           onChange={(e) => setTextInput(e.target.value)}
         />
 
-        {/* Quick Samples */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.75rem' }}>
-          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600 }}>Quick Samples:</span>
-          <button
-            type="button"
-            className="btn-secondary"
-            style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem', borderRadius: '4px', borderColor: 'rgba(239, 68, 68, 0.3)', color: '#f87171' }}
-            onClick={() => runSampleText('<<<<ব্রেকিং নিউজ>>>> সর্বশেষ সংবাদ আপডেট..প্রতিদিন সার্ভিস চার্জ ভ্যাট, এস ডি ও এস সি সহ মাত্র ২.৭৮ টাকা. সর্বশেষ খবরগুলো পেতে START NEWS এস.এম.এস পাঠান 2202')}
-          >
-            🚨 Bengali SMS Sample
-          </button>
-          <button
-            type="button"
-            className="btn-secondary"
-            style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem', borderRadius: '4px', borderColor: 'rgba(239, 68, 68, 0.3)', color: '#f87171' }}
-            onClick={() => runSampleText('URGENT: Your bank account password has expired. Click here immediately to verify your credentials or your account will be permanently suspended within 24 hours.')}
-          >
-            🚨 Phishing SMS Sample
-          </button>
-          <button
-            type="button"
-            className="btn-secondary"
-            style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem', borderRadius: '4px', borderColor: 'rgba(34, 197, 94, 0.3)', color: '#4ade80' }}
-            onClick={() => runSampleText('Hi John, here is the weekly team project update meeting summary for your review. Let me know if you have any questions.')}
-          >
-            ✅ Safe Email Sample
-          </button>
-        </div>
-
         <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginTop: '1rem' }}>
           <button
             className="btn-primary"

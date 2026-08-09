@@ -132,35 +132,6 @@ export default function UrlScanner({ onScanComplete }) {
           </button>
         </div>
 
-        {/* 1-Click Quick Samples */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.75rem' }}>
-          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600 }}>Quick Samples:</span>
-          <button
-            type="button"
-            className="btn-secondary"
-            style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem', borderRadius: '4px', borderColor: 'rgba(239, 68, 68, 0.3)', color: '#f87171' }}
-            onClick={() => runSample('https://savelinks.me/view/CHGWOGs1', 'investigate')}
-          >
-            🚨 savelinks.me Threat Test
-          </button>
-          <button
-            type="button"
-            className="btn-secondary"
-            style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem', borderRadius: '4px', borderColor: 'rgba(239, 68, 68, 0.3)', color: '#f87171' }}
-            onClick={() => runSample('http://paypal-security-update.xyz', 'full')}
-          >
-            🚨 Phishing Test
-          </button>
-          <button
-            type="button"
-            className="btn-secondary"
-            style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem', borderRadius: '4px', borderColor: 'rgba(34, 197, 94, 0.3)', color: '#4ade80' }}
-            onClick={() => runSample('https://facebook.com', 'fast')}
-          >
-            ✅ Safe Test (Facebook)
-          </button>
-        </div>
-
         {/* Action Controls */}
         <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
           <button
