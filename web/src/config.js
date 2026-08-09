@@ -1,7 +1,7 @@
 // PhishGuard API Configuration (Local PC Host via Cloudflare Tunnel)
 import { analyzeUrlLocal, analyzeTextLocal } from './utils/localAnalysis';
 
-const TUNNEL_URL = 'https://tiger-shaft-resumes-willow.trycloudflare.com';
+const TUNNEL_URL = 'https://cable-visits-management-charitable.trycloudflare.com';
 const LOCAL_URL = 'http://127.0.0.1:8000';
 
 export const API_BASE_URL = TUNNEL_URL;
@@ -47,7 +47,7 @@ export async function safeFetch(path, options = {}) {
     }
   }
 
-  // Backup: Local Client-Side AI Engine Fallback if tunnel is temporarily unreachable
+  // Backup: Standalone Client Engine Fallback if tunnel is temporarily unreachable
   let fallbackData;
   if (path === '/health') {
     fallbackData = { status: 'ok', service: 'PhishGuard Local Engine' };

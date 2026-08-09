@@ -1,4 +1,4 @@
-export const API_BASE = "https://tiger-shaft-resumes-willow.trycloudflare.com";
+export const API_BASE = "https://cable-visits-management-charitable.trycloudflare.com";
 export const RED_THRESHOLD = 0.65;
 export const YELLOW_THRESHOLD = 0.40;
 
