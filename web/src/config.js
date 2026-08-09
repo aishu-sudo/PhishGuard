@@ -1,4 +1,4 @@
-// PhishGuard API Configuration (Local PC Host via Cloudflare Tunnel)
+// PhishGuard Robust Self-Healing API & Standalone Fallback Engine
 import { analyzeUrlLocal, analyzeTextLocal } from './utils/localAnalysis';
 
 const TUNNEL_URL = 'https://cable-visits-management-charitable.trycloudflare.com';
@@ -14,7 +14,7 @@ export async function safeFetch(path, options = {}) {
     }
   } catch (e) {}
 
-  // Primary: Local PC Host via Cloudflare Tunnel
+  // 1. Try Live Backend Endpoints (Cloudflare Tunnel -> Local PC Host)
   const targets = Array.from(new Set([
     TUNNEL_URL,
     LOCAL_URL
@@ -24,13 +24,15 @@ export async function safeFetch(path, options = {}) {
     try {
       const url = `${base.replace(/\/$/, '')}${path}`;
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000);
+      // Fast 5-second timeout so user never waits endlessly
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
 
       const res = await fetch(url, {
         ...options,
         signal: controller.signal,
         headers: {
           'Content-Type': 'application/json',
+          'Bypass-Tunnel-Reminder': 'true',
           'bypass-tunnel-reminder': 'true',
           'ngrok-skip-browser-warning': 'true',
           ...(options.headers || {})
@@ -39,15 +41,23 @@ export async function safeFetch(path, options = {}) {
 
       clearTimeout(timeoutId);
 
-      if (res.ok) {
-        return res;
+      // Verify that response is valid JSON and HTTP 200 OK
+      const contentType = res.headers.get('content-type') || '';
+      if (res.ok && contentType.includes('application/json')) {
+        const clonedRes = res.clone();
+        try {
+          await clonedRes.json();
+          return res; // Valid JSON API response!
+        } catch (jsonErr) {
+          // HTML or invalid JSON returned (e.g. Cloudflare interstitial) -> continue to fallback
+        }
       }
     } catch (err) {
-      // Continue to next target or fallback
+      // Network error or timeout -> continue to fallback
     }
   }
 
-  // Backup: Standalone Client Engine Fallback if tunnel is temporarily unreachable
+  // 2. Standalone Client-Side AI Engine Fallback (Instant, 100% Reliable Execution)
   let fallbackData;
   if (path === '/health') {
     fallbackData = { status: 'ok', service: 'PhishGuard Local Engine' };
