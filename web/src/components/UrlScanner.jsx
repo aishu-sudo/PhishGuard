@@ -340,8 +340,11 @@ export default function UrlScanner({ onScanComplete }) {
             </div>
           </div>
 
-          {/* 2 OSINT Footprint Tables */}
+          {/* 2 OSINT Footprint Tables: Visibility Rules */}
           {activeOsint && (
+            (scanMode === 'investigate') ||
+            (scanMode === 'full' && (result.fused_score || 0) >= 0.40)
+          ) && (
             <div className="grid-2" style={{ marginTop: '1rem' }}>
               {/* WHOIS & Credentials Card */}
               <div className="glass-panel osint-card">
