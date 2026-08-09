@@ -120,6 +120,14 @@ export default function UrlScanner({ onScanComplete }) {
             type="button"
             className="btn-secondary"
             style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem', borderRadius: '4px', borderColor: 'rgba(239, 68, 68, 0.3)', color: '#f87171' }}
+            onClick={() => runSample('https://savelinks.me/view/CHGWOGs1', 'investigate')}
+          >
+            🚨 savelinks.me Threat Test
+          </button>
+          <button
+            type="button"
+            className="btn-secondary"
+            style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem', borderRadius: '4px', borderColor: 'rgba(239, 68, 68, 0.3)', color: '#f87171' }}
             onClick={() => runSample('http://paypal-security-update.xyz', 'full')}
           >
             🚨 Phishing Test
@@ -131,14 +139,6 @@ export default function UrlScanner({ onScanComplete }) {
             onClick={() => runSample('https://facebook.com', 'fast')}
           >
             ✅ Safe Test (Facebook)
-          </button>
-          <button
-            type="button"
-            className="btn-secondary"
-            style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem', borderRadius: '4px', borderColor: 'rgba(234, 179, 8, 0.3)', color: '#facc15' }}
-            onClick={() => runSample('http://192.168.1.1/login-verify-account.php', 'full')}
-          >
-            ⚠️ Suspicious IP Test
           </button>
         </div>
 
