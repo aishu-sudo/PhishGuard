@@ -1,5 +1,5 @@
 // PhishGuard API Configuration (Local PC Host via Cloudflare Tunnel)
-const TUNNEL_URL = 'https://cinema-sacred-resorts-continuously.trycloudflare.com';
+const TUNNEL_URL = 'https://tiger-shaft-resumes-willow.trycloudflare.com';
 const LOCAL_URL = 'http://127.0.0.1:8000';
 
 export const API_BASE_URL = TUNNEL_URL;
