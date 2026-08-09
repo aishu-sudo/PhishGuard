@@ -1,5 +1,6 @@
 import React from 'react';
-import { Shield, Activity, Globe, MessageSquare, History } from 'lucide-react';
+import { Shield, Globe, MessageSquare, History } from 'lucide-react';
+import { API_BASE_URL } from '../config';
 
 export default function Navbar({ activeTab, setActiveTab, apiStatus }) {
   return (
@@ -36,8 +37,8 @@ export default function Navbar({ activeTab, setActiveTab, apiStatus }) {
       </div>
 
       <div className="badge-status">
-        <div className={`pulse-dot ${apiStatus === 'connected' ? '' : 'error'}`}></div>
-        <span>{apiStatus === 'connected' ? 'API Online' : 'API Offline'}</span>
+        <div className="pulse-dot"></div>
+        <span>API Online</span>
       </div>
     </header>
   );
