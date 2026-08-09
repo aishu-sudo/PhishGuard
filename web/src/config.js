@@ -1,23 +1,23 @@
-// PhishGuard API Configuration (Local PC Host via Cloudflare Tunnel)
-const TUNNEL_URL = 'https://tiger-shaft-resumes-willow.trycloudflare.com';
-const LOCAL_URL = 'http://127.0.0.1:8000';
+// PhishGuard Robust API Configuration (Multi-Cloud HTTPS Fallback)
+const CLOUDFLARE_TUNNEL_URL = 'https://tiger-shaft-resumes-willow.trycloudflare.com';
+const RENDER_CLOUD_URL = 'https://phishguard-rl19.onrender.com';
 
-export const API_BASE_URL = TUNNEL_URL;
+export const API_BASE_URL = CLOUDFLARE_TUNNEL_URL;
 
 export async function safeFetch(path, options = {}) {
   let lastError = null;
-  // Priority Order: Cloudflare Tunnel -> Local PC Host
+
+  // Pure HTTPS targets to guarantee zero Mixed Content security blocks in browsers
   const targets = Array.from(new Set([
-    TUNNEL_URL,
-    LOCAL_URL
-  ]));
+    CLOUDFLARE_TUNNEL_URL,
+    RENDER_CLOUD_URL
+  ].filter(Boolean)));
 
   for (const base of targets) {
     try {
       const url = `${base.replace(/\/$/, '')}${path}`;
       const controller = new AbortController();
-      // 30 second timeout to allow complete WHOIS & OSINT socket lookups
-      const timeoutId = setTimeout(() => controller.abort(), 30000);
+      const timeoutId = setTimeout(() => controller.abort(), 25000);
 
       const res = await fetch(url, {
         ...options,
@@ -40,5 +40,6 @@ export async function safeFetch(path, options = {}) {
       lastError = err;
     }
   }
-  throw lastError || new Error('Failed to fetch from local PC backend');
+
+  throw lastError || new Error('Failed to connect to PhishGuard backend service');
 }
