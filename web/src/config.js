@@ -1,7 +1,7 @@
 // PhishGuard Robust Self-Healing API & Standalone Fallback Engine
 import { analyzeUrlLocal, analyzeTextLocal } from './utils/localAnalysis';
 
-const TUNNEL_URL = 'https://cable-visits-management-charitable.trycloudflare.com';
+const TUNNEL_URL = 'https://directed-saturday-automobiles-remainder.trycloudflare.com';
 const LOCAL_URL = 'http://127.0.0.1:8000';
 
 export const API_BASE_URL = TUNNEL_URL;
@@ -24,7 +24,7 @@ export async function safeFetch(path, options = {}) {
     try {
       const url = `${base.replace(/\/$/, '')}${path}`;
       const controller = new AbortController();
-      // Fast 5-second timeout so user never waits endlessly
+      // 5-second timeout
       const timeoutId = setTimeout(() => controller.abort(), 5000);
 
       const res = await fetch(url, {
@@ -49,7 +49,7 @@ export async function safeFetch(path, options = {}) {
           await clonedRes.json();
           return res; // Valid JSON API response!
         } catch (jsonErr) {
-          // HTML or invalid JSON returned (e.g. Cloudflare interstitial) -> continue to fallback
+          // HTML or invalid JSON returned -> continue to fallback
         }
       }
     } catch (err) {
