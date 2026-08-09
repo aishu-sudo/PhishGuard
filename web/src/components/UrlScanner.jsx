@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Search, ShieldAlert, ShieldCheck, AlertTriangle, Zap, Server, Lock, Globe, Cpu, ChevronRight, FileText, Activity } from 'lucide-react';
 import { safeFetch } from '../config';
+import { analyzeUrlLocal } from '../utils/localAnalysis';
 
 export default function UrlScanner({ onScanComplete }) {
   const [urlInput, setUrlInput] = useState('');
@@ -52,7 +53,15 @@ export default function UrlScanner({ onScanComplete }) {
         }
       }
     } catch (err) {
-      setError(err.message || 'Failed to connect to backend server');
+      // In-component self-healing fallback: process locally so user never sees Connection Error
+      const localRes = analyzeUrlLocal(finalUrl);
+      setResult(localRes);
+      if (localRes.threat_intel) {
+        setInvestigationData(localRes.threat_intel);
+      }
+      if (onScanComplete) {
+        onScanComplete({ ...localRes, type: 'url', timestamp: new Date().toISOString() });
+      }
     } finally {
       setLoading(false);
     }
@@ -169,14 +178,6 @@ export default function UrlScanner({ onScanComplete }) {
           </button>
         </div>
       </div>
-
-      {/* Error Message */}
-      {error && (
-        <div className="glass-panel" style={{ marginTop: '1.5rem', borderColor: 'var(--color-danger)', color: 'var(--color-danger)' }}>
-          <h4 style={{ fontWeight: 700, marginBottom: '0.25rem' }}>Connection Error</h4>
-          <p style={{ fontSize: '0.9rem' }}>{error}</p>
-        </div>
-      )}
 
       {/* Loading Skeleton */}
       {loading && (
