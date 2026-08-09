@@ -3,7 +3,7 @@ import Navbar from './components/Navbar';
 import UrlScanner from './components/UrlScanner';
 import TextAnalyzer from './components/TextAnalyzer';
 import ScanHistory from './components/ScanHistory';
-import { safeFetch } from './config';
+import { API_BASE_URL } from './config';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('url'); // 'url', 'text', 'history'
@@ -14,7 +14,7 @@ export default function App() {
   useEffect(() => {
     const checkHealth = async () => {
       try {
-        const res = await safeFetch('/health');
+        const res = await fetch(`${API_BASE_URL}/health`);
         if (res.ok) {
           setApiStatus('connected');
         } else {
@@ -26,7 +26,7 @@ export default function App() {
     };
 
     checkHealth();
-    const interval = setInterval(checkHealth, 12000);
+    const interval = setInterval(checkHealth, 10000);
     return () => clearInterval(interval);
   }, []);
 
