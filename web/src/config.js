@@ -1,7 +1,10 @@
-// PhishGuard Self-Healing API & Standalone Engine Config
+// PhishGuard API Configuration (Local PC Host via Cloudflare Tunnel)
 import { analyzeUrlLocal, analyzeTextLocal } from './utils/localAnalysis';
 
-export const API_BASE_URL = 'https://tiger-shaft-resumes-willow.trycloudflare.com';
+const TUNNEL_URL = 'https://tiger-shaft-resumes-willow.trycloudflare.com';
+const LOCAL_URL = 'http://127.0.0.1:8000';
+
+export const API_BASE_URL = TUNNEL_URL;
 
 export async function safeFetch(path, options = {}) {
   let bodyData = {};
@@ -11,46 +14,52 @@ export async function safeFetch(path, options = {}) {
     }
   } catch (e) {}
 
-  // Try Remote Cloud/Local Backend first with a fast 3s timeout
-  try {
-    const url = `${API_BASE_URL.replace(/\/$/, '')}${path}`;
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 3000);
+  // Primary: Local PC Host via Cloudflare Tunnel
+  const targets = Array.from(new Set([
+    TUNNEL_URL,
+    LOCAL_URL
+  ]));
 
-    const res = await fetch(url, {
-      ...options,
-      signal: controller.signal,
-      headers: {
-        'Content-Type': 'application/json',
-        'bypass-tunnel-reminder': 'true',
-        'ngrok-skip-browser-warning': 'true',
-        ...(options.headers || {})
+  for (const base of targets) {
+    try {
+      const url = `${base.replace(/\/$/, '')}${path}`;
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+      const res = await fetch(url, {
+        ...options,
+        signal: controller.signal,
+        headers: {
+          'Content-Type': 'application/json',
+          'bypass-tunnel-reminder': 'true',
+          'ngrok-skip-browser-warning': 'true',
+          ...(options.headers || {})
+        }
+      });
+
+      clearTimeout(timeoutId);
+
+      if (res.ok) {
+        return res;
       }
-    });
-
-    clearTimeout(timeoutId);
-
-    if (res.ok) {
-      return res;
+    } catch (err) {
+      // Continue to next target or fallback
     }
-  } catch (err) {
-    // Remote connection failed or timed out — fallback seamlessly to standalone client engine
   }
 
-  // Standalone Client-Side AI Engine Fallback Execution
-  let mockData;
+  // Backup: Local Client-Side AI Engine Fallback if tunnel is temporarily unreachable
+  let fallbackData;
   if (path === '/health') {
-    mockData = { status: 'ok', service: 'PhishGuard Standalone AI Engine' };
+    fallbackData = { status: 'ok', service: 'PhishGuard Local Engine' };
   } else if (path === '/predict/fast' || path === '/predict/url' || path === '/investigate') {
-    mockData = analyzeUrlLocal(bodyData.url || '');
+    fallbackData = analyzeUrlLocal(bodyData.url || '');
   } else if (path === '/predict/text') {
-    mockData = analyzeTextLocal(bodyData.text || '');
+    fallbackData = analyzeTextLocal(bodyData.text || '');
   } else {
-    mockData = { status: 'ok' };
+    fallbackData = { status: 'ok' };
   }
 
-  // Return synthetic Response object with HTTP 200 OK
-  return new Response(JSON.stringify(mockData), {
+  return new Response(JSON.stringify(fallbackData), {
     status: 200,
     statusText: 'OK',
     headers: { 'Content-Type': 'application/json' }
