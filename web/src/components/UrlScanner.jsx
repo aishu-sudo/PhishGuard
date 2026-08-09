@@ -75,12 +75,6 @@ export default function UrlScanner({ onScanComplete }) {
     }
   };
 
-  const runSample = (sampleUrl, mode = 'full') => {
-    setUrlInput(sampleUrl);
-    setScanMode(mode);
-    handleScan(sampleUrl, mode);
-  };
-
   const getAlertIcon = (level) => {
     if (level === 'RED') return <ShieldAlert size={36} />;
     if (level === 'YELLOW') return <AlertTriangle size={36} />;

@@ -38,11 +38,6 @@ export default function TextAnalyzer({ onScanComplete }) {
     }
   };
 
-  const runSampleText = (sampleText) => {
-    setTextInput(sampleText);
-    handleAnalyzeText(sampleText);
-  };
-
   // Score calculations
   const phishingProb = result ? (
     result.phishing_probability !== undefined
