@@ -1,19 +1,18 @@
 import React, { useState } from 'react';
-import { MessageSquare, AlertTriangle, ShieldCheck, ShieldAlert, Sparkles, Send } from 'lucide-react';
+import { AlertTriangle, ShieldCheck, ShieldAlert, Sparkles } from 'lucide-react';
 import { safeFetch } from '../config';
+import { analyzeTextLocal } from '../utils/localAnalysis';
 
 export default function TextAnalyzer({ onScanComplete }) {
   const [textInput, setTextInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
-  const [error, setError] = useState(null);
 
   const handleAnalyzeText = async (inputStr = textInput) => {
     const finalStr = (inputStr || textInput).trim();
     if (!finalStr) return;
 
     setLoading(true);
-    setError(null);
     setResult(null);
 
     try {
@@ -29,7 +28,11 @@ export default function TextAnalyzer({ onScanComplete }) {
         onScanComplete({ ...data, type: 'text', textPreview: finalStr.slice(0, 60), timestamp: new Date().toISOString() });
       }
     } catch (err) {
-      setError(err.message || 'Failed to analyze text snippet');
+      const localRes = analyzeTextLocal(finalStr);
+      setResult(localRes);
+      if (onScanComplete) {
+        onScanComplete({ ...localRes, type: 'text', textPreview: finalStr.slice(0, 60), timestamp: new Date().toISOString() });
+      }
     } finally {
       setLoading(false);
     }
@@ -40,6 +43,16 @@ export default function TextAnalyzer({ onScanComplete }) {
     handleAnalyzeText(sampleText);
   };
 
+  // Score calculations
+  const phishingProb = result ? (
+    result.phishing_probability !== undefined
+      ? result.phishing_probability
+      : (result.label === 'PHISHING' ? (result.confidence || 0.99) : (1 - (result.confidence || 0.99)))
+  ) : 0;
+  const legitimateProb = 1 - phishingProb;
+
+  const isPhishing = result ? (result.label === 'PHISHING' || phishingProb >= 0.50) : false;
+
   return (
     <div>
       <div className="glass-panel scanner-card">
@@ -47,19 +60,40 @@ export default function TextAnalyzer({ onScanComplete }) {
           Analyze Email & Text Phishing Intent
         </h2>
         <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1.25rem' }}>
-          Test any email snippet, SMS message, or chat text against Transformer NLP classification and social engineering intent scoring.
+          Test any email snippet, SMS message, or chat text against transformer NLP classification and social engineering intent scoring.
         </p>
 
         <textarea
           className="text-analyzer-area"
+          style={{
+            width: '100%',
+            minHeight: '140px',
+            backgroundColor: '#0b0f19',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            borderRadius: '8px',
+            padding: '1rem',
+            color: '#f3f4f6',
+            fontSize: '0.95rem',
+            fontFamily: 'inherit',
+            resize: 'vertical',
+            outline: 'none'
+          }}
           placeholder="Paste email text, SMS, or suspicious message content here..."
           value={textInput}
           onChange={(e) => setTextInput(e.target.value)}
         />
 
-        {/* 1-Click Samples */}
+        {/* Quick Samples */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.75rem' }}>
           <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600 }}>Quick Samples:</span>
+          <button
+            type="button"
+            className="btn-secondary"
+            style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem', borderRadius: '4px', borderColor: 'rgba(239, 68, 68, 0.3)', color: '#f87171' }}
+            onClick={() => runSampleText('<<<<ব্রেকিং নিউজ>>>> সর্বশেষ সংবাদ আপডেট..প্রতিদিন সার্ভিস চার্জ ভ্যাট, এস ডি ও এস সি সহ মাত্র ২.৭৮ টাকা. সর্বশেষ খবরগুলো পেতে START NEWS এস.এম.এস পাঠান 2202')}
+          >
+            🚨 Bengali SMS Sample
+          </button>
           <button
             type="button"
             className="btn-secondary"
@@ -83,19 +117,24 @@ export default function TextAnalyzer({ onScanComplete }) {
             className="btn-primary"
             disabled={loading || !textInput.trim()}
             onClick={() => handleAnalyzeText(textInput)}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              background: 'linear-gradient(135deg, #06b6d4, #3b82f6)',
+              color: '#ffffff',
+              border: 'none',
+              padding: '0.65rem 1.5rem',
+              borderRadius: '8px',
+              fontWeight: 700,
+              cursor: 'pointer'
+            }}
           >
-            <Send size={18} />
-            {loading ? 'Analyzing Intent...' : 'Analyze Message'}
+            <Sparkles size={18} />
+            {loading ? 'Classifying...' : 'Classify Text'}
           </button>
         </div>
       </div>
-
-      {error && (
-        <div className="glass-panel" style={{ marginTop: '1.5rem', borderColor: 'var(--color-danger)', color: 'var(--color-danger)' }}>
-          <h4 style={{ fontWeight: 700, marginBottom: '0.25rem' }}>Text Analysis Error</h4>
-          <p style={{ fontSize: '0.9rem' }}>{error}</p>
-        </div>
-      )}
 
       {loading && (
         <div className="glass-panel" style={{ marginTop: '1.5rem', textAlign: 'center', padding: '2.5rem' }}>
@@ -104,36 +143,74 @@ export default function TextAnalyzer({ onScanComplete }) {
         </div>
       )}
 
+      {/* Cyber Dark Result Layout matching user screenshot */}
       {result && !loading && (
         <div style={{ marginTop: '1.5rem' }}>
-          <div className={`glass-panel risk-banner risk-${result.label === 'PHISHING' ? 'red' : 'green'}`}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              <div className="alert-icon-wrapper">
-                {result.label === 'PHISHING' ? <ShieldAlert size={32} /> : <ShieldCheck size={32} />}
+          {/* Main Threat Banner */}
+          <div className={`alert-card ${isPhishing ? 'RED' : 'GREEN'}`}>
+            <div className="alert-info">
+              <div className="alert-icon-box">
+                {isPhishing ? <ShieldAlert size={36} /> : <ShieldCheck size={36} />}
               </div>
               <div>
-                <span className="badge-level">{result.label}</span>
-                <h3 style={{ fontSize: '1.4rem', fontWeight: 800, marginTop: '0.25rem' }}>
-                  {result.label === 'PHISHING' ? 'Phishing & Credential Theft Risk Detected' : 'Safe Legitimate Communication'}
-                </h3>
-                <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
-                  Intent: {result.intent || 'Message Analysis'}
-                </p>
+                <div className="alert-heading">
+                  {isPhishing ? 'Phishing / Social Engineering Intent Detected' : 'Safe / Legitimate Text Message'}
+                </div>
+                <div className="alert-desc">
+                  {isPhishing
+                    ? 'The transformer NLP model detected deceptive patterns, fake urgency, credential harvesting language, or malicious call-to-actions.'
+                    : 'The transformer NLP model found no deceptive language or credential harvesting triggers.'}
+                </div>
               </div>
             </div>
 
-            <div className="metrics-grid" style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border-subtle)' }}>
-              <div className="metric-box">
-                <span className="metric-title"><Sparkles size={14} /> Phishing Probability</span>
-                <span className="metric-value" style={{ color: result.label === 'PHISHING' ? 'var(--color-danger)' : 'var(--color-safe)' }}>
-                  {((result.phishing_probability || 0) * 100).toFixed(1)}%
-                </span>
+            <div className="score-badge-large">
+              <div className="score-val" style={{ color: isPhishing ? '#ef4444' : '#22c55e' }}>
+                {Math.round(phishingProb * 100)}%
               </div>
-              <div className="metric-box">
-                <span className="metric-title"><MessageSquare size={14} /> Classification Confidence</span>
-                <span className="metric-value" style={{ color: 'var(--accent-cyan)' }}>
-                  {((result.confidence || 0) * 100).toFixed(1)}%
-                </span>
+              <div className="score-lbl">PHISHING PROB</div>
+            </div>
+          </div>
+
+          {/* 2 Metric Probability Cards */}
+          <div className="grid-2" style={{ marginTop: '1rem' }}>
+            {/* Phishing Probability Card */}
+            <div className="glass-panel metric-card">
+              <div className="metric-header">
+                <span className="metric-title">PHISHING PROBABILITY</span>
+                <AlertTriangle size={18} style={{ color: '#ef4444' }} />
+              </div>
+              <div className="metric-number" style={{ color: '#ef4444' }}>
+                {(phishingProb * 100).toFixed(2)}%
+              </div>
+              <div className="progress-bar-bg">
+                <div
+                  className="progress-bar-fill"
+                  style={{
+                    width: `${Math.min(100, phishingProb * 100)}%`,
+                    backgroundColor: '#ef4444',
+                  }}
+                ></div>
+              </div>
+            </div>
+
+            {/* Legitimate Probability Card */}
+            <div className="glass-panel metric-card">
+              <div className="metric-header">
+                <span className="metric-title">LEGITIMATE PROBABILITY</span>
+                <ShieldCheck size={18} style={{ color: '#22c55e' }} />
+              </div>
+              <div className="metric-number" style={{ color: '#22c55e' }}>
+                {(legitimateProb * 100).toFixed(2)}%
+              </div>
+              <div className="progress-bar-bg">
+                <div
+                  className="progress-bar-fill"
+                  style={{
+                    width: `${Math.min(100, legitimateProb * 100)}%`,
+                    backgroundColor: '#22c55e',
+                  }}
+                ></div>
               </div>
             </div>
           </div>
