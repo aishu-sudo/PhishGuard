@@ -194,6 +194,48 @@ export default function UrlScanner({ onScanComplete }) {
             <Globe size={14} /> Deep OSINT Investigation
           </button>
         </div>
+
+        {/* Mode Feature & Latency Comparison Table */}
+        <div className="mode-table-wrapper">
+          <table className="mode-comparison-table">
+            <thead>
+              <tr>
+                <th style={{ textAlign: 'left' }}>Mode</th>
+                <th>ML Scoring</th>
+                <th>WHOIS & SSL</th>
+                <th>IP & Hosting</th>
+                <th>Threat Intel APIs</th>
+                <th>Typical Latency</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className={scanMode === 'fast' ? 'active-mode-row' : ''}>
+                <td className="mode-name">Fast Mode</td>
+                <td className="status-yes">✅</td>
+                <td className="status-no">❌</td>
+                <td className="status-no">❌</td>
+                <td className="status-no">❌</td>
+                <td className="latency">&lt; 20 ms</td>
+              </tr>
+              <tr className={scanMode === 'full' ? 'active-mode-row' : ''}>
+                <td className="mode-name">Full Scoring</td>
+                <td className="status-yes">✅</td>
+                <td className="status-auto">⚡ <em>(Auto if &ge; 40%)</em></td>
+                <td className="status-auto">⚡ <em>(Auto if &ge; 40%)</em></td>
+                <td className="status-auto">⚡ <em>(Auto if &ge; 40%)</em></td>
+                <td className="latency">50 – 200 ms</td>
+              </tr>
+              <tr className={scanMode === 'investigate' ? 'active-mode-row' : ''}>
+                <td className="mode-name">Deep OSINT</td>
+                <td className="status-yes">✅</td>
+                <td className="status-yes">✅ Always</td>
+                <td className="status-yes">✅ Always</td>
+                <td className="status-yes">✅ Always</td>
+                <td className="latency">1 – 3 sec</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Loading Indicator */}
