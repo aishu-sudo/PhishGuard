@@ -58,6 +58,12 @@ export default function UrlScanner({ onScanComplete }) {
     }
   };
 
+  const runSample = (sampleUrl, mode = 'full') => {
+    setUrlInput(sampleUrl);
+    setScanMode(mode);
+    handleScan(sampleUrl, mode);
+  };
+
   const getAlertIcon = (level) => {
     if (level === 'RED') return <ShieldAlert size={32} />;
     if (level === 'YELLOW') return <AlertTriangle size={32} />;
@@ -93,10 +99,39 @@ export default function UrlScanner({ onScanComplete }) {
           <button
             className="btn-primary"
             disabled={loading || !urlInput.trim()}
-            onClick={() => handleScan(urlInput, 'full')}
+            onClick={() => handleScan(urlInput, scanMode)}
           >
             <Search size={18} />
             {loading ? 'Analyzing...' : 'Analyze URL'}
+          </button>
+        </div>
+
+        {/* 1-Click Samples */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.75rem' }}>
+          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600 }}>Quick Samples:</span>
+          <button
+            type="button"
+            className="btn-secondary"
+            style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem', borderRadius: '4px', borderColor: 'rgba(239, 68, 68, 0.3)', color: '#f87171' }}
+            onClick={() => runSample('http://paypal-security-update.xyz', 'full')}
+          >
+            🚨 Phishing Test
+          </button>
+          <button
+            type="button"
+            className="btn-secondary"
+            style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem', borderRadius: '4px', borderColor: 'rgba(34, 197, 94, 0.3)', color: '#4ade80' }}
+            onClick={() => runSample('https://facebook.com', 'fast')}
+          >
+            ✅ Safe Test (Facebook)
+          </button>
+          <button
+            type="button"
+            className="btn-secondary"
+            style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem', borderRadius: '4px', borderColor: 'rgba(234, 179, 8, 0.3)', color: '#facc15' }}
+            onClick={() => runSample('http://192.168.1.1/login-verify-account.php', 'full')}
+          >
+            ⚠️ Suspicious IP Test
           </button>
         </div>
 
@@ -130,185 +165,112 @@ export default function UrlScanner({ onScanComplete }) {
             }}
             style={{ fontSize: '0.825rem', padding: '0.5rem 1rem' }}
           >
-            <Server size={14} /> Deep OSINT Investigation
+            <Globe size={14} /> Deep OSINT Investigation
           </button>
         </div>
       </div>
 
       {/* Error Message */}
       {error && (
-        <div className="glass-panel" style={{ padding: '1.25rem 1.5rem', marginBottom: '2rem', borderLeft: '4px solid var(--color-danger)' }}>
-          <div style={{ color: 'var(--color-danger)', fontWeight: 700, marginBottom: '0.25rem' }}>Connection Error</div>
-          <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>{error}</div>
+        <div className="glass-panel" style={{ marginTop: '1.5rem', borderColor: 'var(--color-danger)', color: 'var(--color-danger)' }}>
+          <h4 style={{ fontWeight: 700, marginBottom: '0.25rem' }}>Connection Error</h4>
+          <p style={{ fontSize: '0.9rem' }}>{error}</p>
+        </div>
+      )}
+
+      {/* Loading Skeleton */}
+      {loading && (
+        <div className="glass-panel" style={{ marginTop: '1.5rem', textAlign: 'center', padding: '2.5rem' }}>
+          <div className="pulse-dot" style={{ width: '16px', height: '16px', margin: '0 auto 1rem' }}></div>
+          <h3 style={{ fontWeight: 700, fontSize: '1.1rem' }}>Running Multi-Model AI Classification...</h3>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginTop: '0.5rem' }}>
+            Extracting 32 lexical features, computing XGBoost probability, Isolation Forest anomaly index & WHOIS footprint.
+          </p>
         </div>
       )}
 
       {/* Results View */}
-      {result && (
-        <div>
-          {/* Main Alert Banner */}
-          <div className={`alert-card ${result.alert_level}`}>
-            <div className="alert-info">
-              <div className="alert-icon-box">
+      {result && !loading && (
+        <div style={{ marginTop: '1.5rem' }}>
+          {/* Main Risk Card */}
+          <div className={`glass-panel risk-banner risk-${(result.alert_level || 'GREEN').toLowerCase()}`}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <div className="alert-icon-wrapper">
                 {getAlertIcon(result.alert_level)}
               </div>
               <div>
-                <div className="alert-heading">
-                  {result.alert_level === 'RED' && 'Dangerous Phishing Threat Detected'}
-                  {result.alert_level === 'YELLOW' && 'Suspicious / Elevated Risk Website'}
-                  {result.alert_level === 'GREEN' && 'Verified Safe Website'}
-                </div>
-                <div className="alert-desc">
-                  {result.alert_level === 'RED' && 'PhishGuard ML has strong evidence this domain is mimicking a known brand or deploying phishing kits.'}
-                  {result.alert_level === 'YELLOW' && 'This domain shows unusual structural patterns or brand-spoofing indicators.'}
-                  {result.alert_level === 'GREEN' && 'No phishing or structural anomaly patterns detected.'}
-                </div>
+                <span className="badge-level">{result.alert_level || 'SAFE'}</span>
+                <h3 style={{ fontSize: '1.4rem', fontWeight: 800, marginTop: '0.25rem' }}>
+                  {result.alert_level === 'RED' ? 'Dangerous Phishing Link Detected' : (result.alert_level === 'YELLOW' ? 'Suspicious Link - Exercise Caution' : 'Safe Legitimate Domain')}
+                </h3>
+                <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginTop: '0.25rem', wordBreak: 'break-all' }}>
+                  {result.url}
+                </p>
               </div>
             </div>
 
-            <div className="score-badge-large">
-              <div className="score-val" style={{ color: getScoreColor(result.fused_score || 0) }}>
-                {Math.round((result.fused_score || 0) * 100)}%
+            {/* Score Gauges */}
+            <div className="metrics-grid" style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border-subtle)' }}>
+              <div className="metric-box">
+                <span className="metric-title"><Cpu size={14} /> Fused Threat Score</span>
+                <span className="metric-value" style={{ color: getScoreColor(result.fused_score || 0) }}>
+                  {((result.fused_score || 0) * 100).toFixed(1)}%
+                </span>
               </div>
-              <div className="score-lbl">Risk Score</div>
-            </div>
-          </div>
-
-          {/* Model Breakdown Metric Cards */}
-          <div className="grid-3">
-            <div className="glass-panel metric-card">
-              <div className="metric-header">
-                <span className="metric-title">Fused Decision Risk</span>
-                <Cpu size={18} style={{ color: 'var(--accent-cyan)' }} />
+              <div className="metric-box">
+                <span className="metric-title"><Zap size={14} /> Supervised Probability</span>
+                <span className="metric-value" style={{ color: getScoreColor(result.supervised_score || 0) }}>
+                  {((result.supervised_score || 0) * 100).toFixed(1)}%
+                </span>
               </div>
-              <div className="metric-number" style={{ color: getScoreColor(result.fused_score || 0) }}>
-                {(result.fused_score || 0).toFixed(4)}
-              </div>
-              <div className="progress-bar-bg">
-                <div
-                  className="progress-bar-fill"
-                  style={{
-                    width: `${Math.min(100, (result.fused_score || 0) * 100)}%`,
-                    backgroundColor: getScoreColor(result.fused_score || 0),
-                  }}
-                ></div>
-              </div>
-            </div>
-
-            <div className="glass-panel metric-card">
-              <div className="metric-header">
-                <span className="metric-title">XGBoost Supervised Score</span>
-                <Zap size={18} style={{ color: 'var(--accent-blue)' }} />
-              </div>
-              <div className="metric-number">
-                {(result.supervised_score || 0).toFixed(4)}
-              </div>
-              <div className="progress-bar-bg">
-                <div
-                  className="progress-bar-fill"
-                  style={{
-                    width: `${Math.min(100, (result.supervised_score || 0) * 100)}%`,
-                    backgroundColor: 'var(--accent-blue)',
-                  }}
-                ></div>
-              </div>
-            </div>
-
-            <div className="glass-panel metric-card">
-              <div className="metric-header">
-                <span className="metric-title">Isolation Forest Anomaly Index</span>
-                <Activity size={18} style={{ color: 'var(--accent-purple)' }} />
-              </div>
-              <div className="metric-number">
-                {(result.anomaly_score || 0).toFixed(4)}
-              </div>
-              <div className="progress-bar-bg">
-                <div
-                  className="progress-bar-fill"
-                  style={{
-                    width: `${Math.min(100, (result.anomaly_score || 0) * 100)}%`,
-                    backgroundColor: 'var(--accent-purple)',
-                  }}
-                ></div>
+              <div className="metric-box">
+                <span className="metric-title"><Activity size={14} /> Anomaly Score</span>
+                <span className="metric-value" style={{ color: getScoreColor(result.anomaly_score || 0) }}>
+                  {((result.anomaly_score || 0) * 100).toFixed(1)}%
+                </span>
               </div>
             </div>
           </div>
 
-          {/* Threat Intelligence / OSINT Cards */}
+          {/* OSINT Footprint */}
           {investigationData && (
-            <div className="grid-2">
-              {/* WHOIS & SSL Card */}
-              <div className="glass-panel osint-card">
-                <div className="osint-header">
-                  <Lock size={20} style={{ color: 'var(--accent-cyan)' }} />
-                  WHOIS & Security Credentials
-                </div>
-                <table className="data-table">
-                  <tbody>
-                    <tr>
-                      <td className="data-label">Target Domain</td>
-                      <td className="data-value">{investigationData.host || investigationData.domain || result.url}</td>
-                    </tr>
-                    <tr>
-                      <td className="data-label">Registrar</td>
-                      <td className="data-value">{investigationData.whois?.registrar || investigationData.whois?.error || 'N/A'}</td>
-                    </tr>
-                    <tr>
-                      <td className="data-label">Creation Date</td>
-                      <td className="data-value">{investigationData.whois?.creation_date || 'N/A'}</td>
-                    </tr>
-                    <tr>
-                      <td className="data-label">Domain Age</td>
-                      <td className="data-value">
-                        {investigationData.whois?.domain_age_days ? `${investigationData.whois.domain_age_days} days` : 'N/A'}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="data-label">SSL Issuer</td>
-                      <td className="data-value">{investigationData.ssl?.issuer || investigationData.ssl?.error || 'N/A'}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+            <div className="glass-panel" style={{ marginTop: '1rem' }}>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Globe size={18} color="var(--accent-cyan)" /> Deep Domain Threat Footprint
+              </h3>
 
-              {/* Hosting & Network Card */}
-              <div className="glass-panel osint-card">
-                <div className="osint-header">
-                  <Server size={20} style={{ color: 'var(--accent-blue)' }} />
-                  IP & Infrastructure Footprint
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem' }}>
+                <div className="osint-item">
+                  <Server size={16} />
+                  <div>
+                    <span className="osint-label">Domain Name</span>
+                    <span className="osint-val">{investigationData.domain || 'N/A'}</span>
+                  </div>
                 </div>
-                <table className="data-table">
-                  <tbody>
-                    <tr>
-                      <td className="data-label">IP Address</td>
-                      <td className="data-value">{investigationData.ip?.ip || investigationData.ip?.ipv4?.[0] || 'N/A'}</td>
-                    </tr>
-                    <tr>
-                      <td className="data-label">ASN / Hosting</td>
-                      <td className="data-value">{investigationData.ip?.hosting || investigationData.ip?.asn || 'N/A'}</td>
-                    </tr>
-                    <tr>
-                      <td className="data-label">Country</td>
-                      <td className="data-value">{investigationData.ip?.country || 'N/A'}</td>
-                    </tr>
-                    <tr>
-                      <td className="data-label">Safe Browsing</td>
-                      <td className="data-value">
-                        <span className={`tag-badge ${investigationData.safe_browsing?.flagged ? 'danger' : 'success'}`}>
-                          {investigationData.safe_browsing?.flagged ? 'FLAGGED MALICIOUS' : 'CLEAN / PASSED'}
-                        </span>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="data-label">Threat Verdict</td>
-                      <td className="data-value">
-                        <span className={`tag-badge ${investigationData.verdict === 'HIGH_RISK' ? 'danger' : 'success'}`}>
-                          {investigationData.verdict || (result.alert_level === 'RED' ? 'HIGH_RISK' : 'SAFE')}
-                        </span>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+
+                <div className="osint-item">
+                  <Lock size={16} />
+                  <div>
+                    <span className="osint-label">SSL Certificate</span>
+                    <span className="osint-val">{investigationData.ssl?.valid ? 'Valid SSL' : 'Self-Signed / Untrusted'}</span>
+                  </div>
+                </div>
+
+                <div className="osint-item">
+                  <FileText size={16} />
+                  <div>
+                    <span className="osint-label">WHOIS Registrar</span>
+                    <span className="osint-val">{investigationData.whois?.registrar || 'Unknown Registrar'}</span>
+                  </div>
+                </div>
+
+                <div className="osint-item">
+                  <Activity size={16} />
+                  <div>
+                    <span className="osint-label">Creation Date</span>
+                    <span className="osint-val">{investigationData.whois?.created_date || 'N/A'}</span>
+                  </div>
+                </div>
               </div>
             </div>
           )}
