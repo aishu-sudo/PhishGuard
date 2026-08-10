@@ -88,6 +88,7 @@ SHORTENERS = {
     "t.ly",
     "v.gd",
     "savelinks.me",
+    "ln.run",
 }
 _MULTI_TLDS = {
     "co.uk", "org.uk", "ac.uk", "gov.uk", "co.jp", "co.in", "co.kr",

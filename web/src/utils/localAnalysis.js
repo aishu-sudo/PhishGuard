@@ -16,7 +16,7 @@ const TARGET_BRANDS = ['paypal', 'facebook', 'google', 'apple', 'microsoft', 'ne
 
 const SHORTENERS = [
   'bit.ly', 'tinyurl.com', 't.co', 'goo.gl', 'ow.ly', 'is.gd',
-  'cutt.ly', 'cutt.us', 'shorturl.at', 'rb.gy', 'tiny.cc', 't.ly', 'v.gd', 'savelinks.me'
+  'cutt.ly', 'cutt.us', 'shorturl.at', 'rb.gy', 'tiny.cc', 't.ly', 'v.gd', 'savelinks.me', 'ln.run'
 ];
 
 export function analyzeUrlLocal(rawUrl) {
