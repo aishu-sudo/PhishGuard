@@ -14,6 +14,11 @@ const SUSPICIOUS_WORDS = [
 
 const TARGET_BRANDS = ['paypal', 'facebook', 'google', 'apple', 'microsoft', 'netflix', 'amazon', 'binance'];
 
+const SHORTENERS = [
+  'bit.ly', 'tinyurl.com', 't.co', 'goo.gl', 'ow.ly', 'is.gd',
+  'cutt.ly', 'cutt.us', 'shorturl.at', 'rb.gy', 'tiny.cc', 't.ly', 'v.gd', 'savelinks.me'
+];
+
 export function analyzeUrlLocal(rawUrl) {
   let urlStr = (rawUrl || '').trim();
   if (!urlStr.startsWith('http://') && !urlStr.startsWith('https://')) {
@@ -31,8 +36,10 @@ export function analyzeUrlLocal(rawUrl) {
   const domainParts = hostname.replace(/^www\./, '').split('.');
   const baseDomain = domainParts.length >= 2 ? domainParts.slice(-2).join('.') : hostname;
 
-  // Check Allowlist
-  if (ALLOWLIST.includes(baseDomain) || ALLOWLIST.includes(hostname)) {
+  // Check Allowlist (Exempt Shortener domains)
+  const isShortener = SHORTENERS.includes(baseDomain) || SHORTENERS.includes(hostname);
+
+  if (!isShortener && (ALLOWLIST.includes(baseDomain) || ALLOWLIST.includes(hostname))) {
     return {
       url: urlStr,
       alert_level: 'GREEN',
@@ -52,6 +59,12 @@ export function analyzeUrlLocal(rawUrl) {
 
   let riskScore = 0.15;
   const reasons = [];
+
+  // Shortener penalty
+  if (isShortener) {
+    riskScore += 0.65;
+    reasons.push('Masked URL Shortener detected (Conceals final target destination)');
+  }
 
   // IP Address hostname
   if (/^\d{1,3}(\.\d{1,3}){3}$/.test(hostname)) {
