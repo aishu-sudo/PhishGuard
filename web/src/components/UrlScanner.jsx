@@ -245,66 +245,6 @@ export default function UrlScanner({ onScanComplete }) {
             </div>
           </div>
 
-          {/* 3 Model Metric Cards */}
-          <div className="grid-3" style={{ marginTop: '1rem' }}>
-            <div className="glass-panel metric-card">
-              <div className="metric-header">
-                <span className="metric-title">FUSED DECISION RISK</span>
-                <Cpu size={18} style={{ color: 'var(--accent-cyan)' }} />
-              </div>
-              <div className="metric-number" style={{ color: getScoreColor(result.fused_score || 0) }}>
-                {(result.fused_score || 0).toFixed(4)}
-              </div>
-              <div className="progress-bar-bg">
-                <div
-                  className="progress-bar-fill"
-                  style={{
-                    width: `${Math.min(100, (result.fused_score || 0) * 100)}%`,
-                    backgroundColor: getScoreColor(result.fused_score || 0),
-                  }}
-                ></div>
-              </div>
-            </div>
-
-            <div className="glass-panel metric-card">
-              <div className="metric-header">
-                <span className="metric-title">XGBOOST SUPERVISED SCORE</span>
-                <Zap size={18} style={{ color: 'var(--accent-blue)' }} />
-              </div>
-              <div className="metric-number">
-                {(result.supervised_score || 0).toFixed(4)}
-              </div>
-              <div className="progress-bar-bg">
-                <div
-                  className="progress-bar-fill"
-                  style={{
-                    width: `${Math.min(100, (result.supervised_score || 0) * 100)}%`,
-                    backgroundColor: 'var(--accent-blue)',
-                  }}
-                ></div>
-              </div>
-            </div>
-
-            <div className="glass-panel metric-card">
-              <div className="metric-header">
-                <span className="metric-title">ISOLATION FOREST ANOMALY INDEX</span>
-                <Activity size={18} style={{ color: 'var(--accent-purple)' }} />
-              </div>
-              <div className="metric-number">
-                {(result.anomaly_score || 0).toFixed(4)}
-              </div>
-              <div className="progress-bar-bg">
-                <div
-                  className="progress-bar-fill"
-                  style={{
-                    width: `${Math.min(100, (result.anomaly_score || 0) * 100)}%`,
-                    backgroundColor: 'var(--accent-purple)',
-                  }}
-                ></div>
-              </div>
-            </div>
-          </div>
-
           {/* 2 OSINT Footprint Tables: Visibility Rules */}
           {activeOsint && (
             (scanMode === 'investigate') ||
