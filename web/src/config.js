@@ -1,7 +1,7 @@
 // PhishGuard Robust Self-Healing API & Standalone Fallback Engine
 import { analyzeUrlLocal, analyzeTextLocal } from './utils/localAnalysis';
 
-const TUNNEL_URL = 'https://directed-saturday-automobiles-remainder.trycloudflare.com';
+const TUNNEL_URL = 'https://agreement-combines-looksmart-twice.trycloudflare.com';
 const LOCAL_URL = 'http://127.0.0.1:8000';
 
 export const API_BASE_URL = TUNNEL_URL;
