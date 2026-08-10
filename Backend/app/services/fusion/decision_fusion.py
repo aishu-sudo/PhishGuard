@@ -80,6 +80,14 @@ SHORTENERS = {
     "goo.gl",
     "ow.ly",
     "is.gd",
+    "cutt.ly",
+    "cutt.us",
+    "shorturl.at",
+    "rb.gy",
+    "tiny.cc",
+    "t.ly",
+    "v.gd",
+    "savelinks.me",
 }
 _MULTI_TLDS = {
     "co.uk", "org.uk", "ac.uk", "gov.uk", "co.jp", "co.in", "co.kr",
@@ -195,9 +203,24 @@ HOMOGRAPH_MAP = {
     "ӏ": "l",
 }
 
-# ==========================================================
-# BASIC HELPERS
-# ==========================================================
+import urllib.request
+
+def _unshorten_url(url: str, timeout: float = 2.5) -> str:
+    """Follow HTTP redirects for shorteners to unmask destination URL."""
+    full_url = url if url.startswith(("http://", "https://")) else "http://" + url
+    try:
+        req = urllib.request.Request(
+            full_url,
+            headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
+        )
+        with urllib.request.urlopen(req, timeout=timeout) as response:
+            target = response.geturl()
+            if target and target != full_url:
+                print(f"[fusion] Unshortened link: {url} -> {target}")
+                return target
+    except Exception as e:
+        print(f"[fusion] Could not unshorten {url}: {e}")
+    return url
 
 def safe_parse_url(url):
 
@@ -590,12 +613,15 @@ def score_url(url: str, fast: bool = False):
 
    
 
-    is_allowlisted = host_no_www in FULL_TOP_DOMAINS
+    is_shortener_domain = host_no_www in SHORTENERS or any(s in host_no_www for s in SHORTENERS)
 
-    if not is_allowlisted:
-        apex_candidate = _extract_apex(host_no_www)
-        if apex_candidate in FULL_TOP_DOMAINS:
-            is_allowlisted = True
+    is_allowlisted = False
+    if not is_shortener_domain:
+        is_allowlisted = host_no_www in FULL_TOP_DOMAINS
+        if not is_allowlisted:
+            apex_candidate = _extract_apex(host_no_www)
+            if apex_candidate in FULL_TOP_DOMAINS:
+                is_allowlisted = True
 
     if is_allowlisted:
         return {
@@ -606,10 +632,17 @@ def score_url(url: str, fast: bool = False):
             "anomaly_score": 0.0,
             "note": "allowlisted_domain",
         }
+
     t = time.time()
+    target_url = norm
+    if host_no_www in SHORTENERS or any(s in host_no_www for s in SHORTENERS):
+        unmasked = _unshorten_url(raw_url)
+        if unmasked and unmasked != raw_url:
+            target_url = _normalize_url(unmasked)
+            print(f"[fusion] Unmasked shortener target: {target_url}")
 
     try:
-        values, names = extract_features(norm)
+        values, names = extract_features(target_url)
 
         print(f"Feature Extraction : {time.time()-t:.3f} sec")
         print("=" * 70)
@@ -728,6 +761,13 @@ def score_url(url: str, fast: bool = False):
         +
         W_ANOMALY * anom_score
     )
+
+    # ------------------------------------------------------
+    # Shortener Link Masking Risk Floor Rule
+    # ------------------------------------------------------
+    if feature_dict.get("is_shortened") == 1 or host_no_www in SHORTENERS:
+        # URL shorteners mask the true destination domain, posing inherent risk
+        fused = max(fused, 0.48)
 
     # ------------------------------------------------------
     # Google Safe Browsing
