@@ -1,4 +1,5 @@
-export const API_BASE = "https://cable-visits-management-charitable.trycloudflare.com";
+export const API_BASE = "https://agreement-combines-looksmart-twice.trycloudflare.com";
+export const LOCAL_API_BASE = "http://127.0.0.1:8000";
 export const RED_THRESHOLD = 0.65;
 export const YELLOW_THRESHOLD = 0.40;
 

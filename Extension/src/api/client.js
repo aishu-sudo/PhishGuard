@@ -1,66 +1,58 @@
-import { API_BASE } from "../utils/constants";
+import { API_BASE, LOCAL_API_BASE } from "../utils/constants";
+
+async function fetchWithFallback(endpoint, options, timeoutMs = 5000) {
+    const targets = [API_BASE, LOCAL_API_BASE];
+    let lastError = null;
+
+    for (const base of targets) {
+        if (!base) continue;
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+        try {
+            const res = await fetch(`${base}${endpoint}`, {
+                ...options,
+                headers: { "Content-Type": "application/json", ...(options.headers || {}) },
+                signal: controller.signal,
+            });
+            if (res.ok) {
+                return await res.json();
+            }
+        } catch (err) {
+            lastError = err;
+        } finally {
+            clearTimeout(timer);
+        }
+    }
+    throw lastError || new Error(`API call failed for ${endpoint}`);
+}
 
 export async function predictURL(url, timeoutMs = 90000) {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), timeoutMs);
-
-    try {
-        const res = await fetch(`${API_BASE}/predict/url`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ url }),
-            signal: controller.signal,
-        });
-        if (!res.ok) throw new Error(`API error ${res.status}`);
-        return await res.json();
-    } finally {
-        clearTimeout(timer);
-    }
+    return fetchWithFallback("/predict/url", {
+        method: "POST",
+        body: JSON.stringify({ url }),
+    }, timeoutMs);
 }
 
-// Fast path for the background worker's onBeforeNavigate hook: ML + Safe
-// Browsing only, no OSINT — should return in well under a second. Short
-// timeout on purpose so a slow/unreachable backend fails fast instead of
-// leaving the navigation hanging.
 export async function predictFast(url, timeoutMs = 5000) {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), timeoutMs);
-
-    try {
-        const res = await fetch(`${API_BASE}/predict/fast`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ url }),
-            signal: controller.signal,
-        });
-        if (!res.ok) throw new Error(`API error ${res.status}`);
-        return await res.json();
-    } finally {
-        clearTimeout(timer);
-    }
+    return fetchWithFallback("/predict/fast", {
+        method: "POST",
+        body: JSON.stringify({ url }),
+    }, timeoutMs);
 }
 
-// Full OSINT investigation (WHOIS, cert transparency, reverse IP, etc).
-// Slow — only called on demand from the warning page, not on every navigation.
 export async function investigateURL(url, timeoutMs = 90000) {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), timeoutMs);
-
-    try {
-        const res = await fetch(`${API_BASE}/investigate`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ url }),
-            signal: controller.signal,
-        });
-        if (!res.ok) throw new Error(`API error ${res.status}`);
-        return await res.json();
-    } finally {
-        clearTimeout(timer);
-    }
+    return fetchWithFallback("/investigate", {
+        method: "POST",
+        body: JSON.stringify({ url }),
+    }, timeoutMs);
 }
 
 export async function checkHealth() {
-    const res = await fetch(`${API_BASE}/health`);
-    return res.ok;
+    try {
+        await fetchWithFallback("/health", { method: "GET" }, 3000);
+        return true;
+    } catch {
+        return false;
+    }
 }
