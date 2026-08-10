@@ -60,19 +60,6 @@ export default function TextAnalyzer({ onScanComplete }) {
 
         <textarea
           className="text-analyzer-area"
-          style={{
-            width: '100%',
-            minHeight: '140px',
-            backgroundColor: '#0b0f19',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            borderRadius: '8px',
-            padding: '1rem',
-            color: '#f3f4f6',
-            fontSize: '0.95rem',
-            fontFamily: 'inherit',
-            resize: 'vertical',
-            outline: 'none'
-          }}
           placeholder="Paste email text, SMS, or suspicious message content here..."
           value={textInput}
           onChange={(e) => setTextInput(e.target.value)}
