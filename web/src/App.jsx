@@ -76,7 +76,7 @@ export default function App() {
         )}
 
         <footer className="footer-container">
-          <p>© 2026 PhishGuard Capstone Research Project • Multi-Model Anomaly Detection & Threat Intelligence</p>
+          <p>© 2026 PhishGuard Capstone Project • Multi-Model Anomaly Detection & Threat Intelligence</p>
           <p style={{ marginTop: '0.35rem', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
             Powered by FastAPI Backend • XGBoost • Isolation Forest • HuggingFace Transformers
           </p>
