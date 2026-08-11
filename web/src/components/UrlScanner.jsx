@@ -19,47 +19,43 @@ export default function UrlScanner({ onScanComplete }) {
     setInvestigationData(null);
 
     try {
+      const endpoint = mode === 'fast' ? '/predict/fast' : '/predict/url';
+      const res = await safeFetch(endpoint, {
+        method: 'POST',
+        body: JSON.stringify({ url: finalUrl }),
+      });
+      const data = await res.json();
+      setResult(data);
+
       if (mode === 'investigate') {
-        const res = await safeFetch('/investigate', {
-          method: 'POST',
-          body: JSON.stringify({ url: finalUrl }),
-        });
-        const data = await res.json();
-        setInvestigationData(data);
-        setResult({
-          url: finalUrl,
-          alert_level: data.verdict === 'HIGH_RISK' ? 'RED' : 'GREEN',
-          fused_score: data.verdict === 'HIGH_RISK' ? 0.95 : 0.05,
-          supervised_score: data.verdict === 'HIGH_RISK' ? 0.98 : 0.02,
-          anomaly_score: data.verdict === 'HIGH_RISK' ? 0.90 : 0.10,
-          threat_intel: data,
-        });
-      } else {
-        const endpoint = mode === 'fast' ? '/predict/fast' : '/predict/url';
-        const res = await safeFetch(endpoint, {
-          method: 'POST',
-          body: JSON.stringify({ url: finalUrl }),
-        });
-        const data = await res.json();
-        setResult(data);
-
-        if (data.threat_intel) {
-          setInvestigationData(data.threat_intel);
-        } else {
-          // Fallback OSINT construction for complete UI rendering
-          setInvestigationData({
-            domain: new URL(finalUrl.startsWith('http') ? finalUrl : `https://${finalUrl}`).hostname,
-            whois: { registrar: 'Standard Registrar', creation_date: '2020-05-15' },
-            ssl: { issuer: 'Google Trust Services / Let\'s Encrypt' },
-            ip: { ip: '172.67.134.189', hosting: 'CLOUDFLARENET - Cloudflare, Inc., US', country: 'US' },
-            safe_browsing: { flagged: data.alert_level === 'RED' },
-            verdict: data.alert_level === 'RED' ? 'HIGH_RISK' : 'SAFE'
+        try {
+          const invRes = await safeFetch('/investigate', {
+            method: 'POST',
+            body: JSON.stringify({ url: finalUrl }),
           });
+          const invData = await invRes.json();
+          setInvestigationData(invData);
+        } catch (e) {
+          if (data.threat_intel) {
+            setInvestigationData(data.threat_intel);
+          }
         }
+      } else if (data.threat_intel) {
+        setInvestigationData(data.threat_intel);
+      } else {
+        // Fallback OSINT construction for complete UI rendering
+        setInvestigationData({
+          domain: new URL(finalUrl.startsWith('http') ? finalUrl : `https://${finalUrl}`).hostname,
+          whois: { registrar: 'Standard Registrar', creation_date: '2020-05-15' },
+          ssl: { issuer: 'Google Trust Services / Let\'s Encrypt' },
+          ip: { ip: '172.67.134.189', hosting: 'CLOUDFLARENET - Cloudflare, Inc., US', country: 'US' },
+          safe_browsing: { flagged: data.alert_level === 'RED' },
+          verdict: data.alert_level === 'RED' ? 'HIGH_RISK' : 'SAFE'
+        });
+      }
 
-        if (onScanComplete) {
-          onScanComplete({ ...data, type: 'url', timestamp: new Date().toISOString() });
-        }
+      if (onScanComplete) {
+        onScanComplete({ ...data, type: 'url', timestamp: new Date().toISOString() });
       }
     } catch (err) {
       const localRes = analyzeUrlLocal(finalUrl);
