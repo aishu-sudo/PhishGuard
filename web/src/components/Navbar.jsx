@@ -21,13 +21,6 @@ export default function Navbar({ activeTab, setActiveTab, apiStatus }) {
           URL Inspector
         </button>
         <button
-          className={`tab-btn ${activeTab === 'text' ? 'active' : ''}`}
-          onClick={() => setActiveTab('text')}
-        >
-          <MessageSquare size={18} />
-          Email / Text Scanner
-        </button>
-        <button
           className={`tab-btn ${activeTab === 'history' ? 'active' : ''}`}
           onClick={() => setActiveTab('history')}
         >

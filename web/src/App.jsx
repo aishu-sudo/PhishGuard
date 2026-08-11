@@ -65,12 +65,11 @@ export default function App() {
         <div className="hero-banner">
           <h1 className="hero-title">Real-Time AI Phishing Intelligence</h1>
           <p className="hero-subtitle">
-            Analyze suspicious web links, investigate domain infrastructure, and classify email/SMS text with XGBoost, Isolation Forest & Transformer NLP models.
+            Analyze suspicious web links, investigate domain infrastructure, and unmask phishing redirects with XGBoost & Isolation Forest models.
           </p>
         </div>
 
         {activeTab === 'url' && <UrlScanner onScanComplete={handleScanComplete} />}
-        {activeTab === 'text' && <TextAnalyzer onScanComplete={handleScanComplete} />}
         {activeTab === 'history' && (
           <ScanHistory history={history} onClearHistory={handleClearHistory} />
         )}
